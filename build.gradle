@@ -2,6 +2,7 @@ group 'com.slackmag'
 version '0.0.1'
 
 apply plugin: 'java'
+apply plugin: 'maven'
 
 sourceCompatibility = 1.8
 
@@ -10,6 +11,41 @@ repositories {
     mavenLocal()
 }
 
+configurations {
+    deployerJars
+}
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
+    deployerJars "org.apache.maven.wagon:wagon-http:2.2"
 }
+
+uploadArchives {
+    repositories.mavenDeployer {
+        configuration = configurations.deployerJars
+        repository(url: "http://localhost:8081/nexus/content/repositories/releases/") {
+            authentication(userName: "admin", password: "admin123")
+        }
+    }
+}
+/*
+def jarPath= buildDir.toString()+'/libs/'+rootProject.name.toString()+'-'+version+'.jar'
+def jarFile = file(jarPath)
+
+artifacts {
+    archives jarFile
+}
+
+Task uploadArchives() {
+    repositories {
+        add project.artifacts
+        ivy {
+            credentials {
+                username "admin"
+                password "admin123"
+            }
+            url "http://localhost:8081/nexus/content/repositories/releases/"
+        }
+    }
+}*/
